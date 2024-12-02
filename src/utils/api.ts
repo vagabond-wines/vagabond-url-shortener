@@ -7,6 +7,17 @@ export function redirect(longUrl: string) {
   };
 }
 
+export function _200Image(data: any) {
+  return {
+    statusCode: 200,
+    body: '<img src="' + data + '" />',
+    headers: {
+      "Content-type": "text/html",
+    },
+    isBase64Encoded: true
+  };
+}
+
 export function _200(data: any) {
   return {
     statusCode: 200,

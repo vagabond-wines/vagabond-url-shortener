@@ -1,5 +1,6 @@
 service: serverless-url-shortener
 frameworkVersion: "2"
+useDotenv: true
 
 plugins:
   - serverless-iam-roles-per-function
@@ -8,21 +9,21 @@ plugins:
 provider:
   name: aws
   runtime: nodejs14.x
-  profile: ${opt:profile, default}
-  region: ${opt:region, eu-west-2}
-  stage: dev
+  profile: ${env:PROFILE}
+  region: ${env:REGION, eu-west-2}
+  stage: ${env:STAGE}
   environment:
     LINK_TABLE: !Ref LinkTable
   apiGateway:
     apiKeys:
-      - key-${self:custom.stage}
+      - key-${env:STAGE}
 
 custom:
-  stage: ${opt:stage, self:provider.stage}
-  r53HostedZone: ${opt:r53hosedzoneid}
-  domainName: ${opt:domainname}
-  acmCertArn: ${opt:acmcertarn}
-  createDNSRecord: ${opt:creatednsrecord}
+  stage: ${self:provider.stage}
+  r53HostedZone: ${env:R53HOSTEDZONEID}
+  domainName: ${env:DOMAINNAME}
+  acmCertArn: ${env:AMCCERTARN}
+  createDNSRecord: ${env:CREATEDDNSRECORD}
 
 functions:
   shorten-url:
@@ -38,9 +39,12 @@ functions:
       - Effect: "Allow"
         Action:
           - dynamodb:PutItem
+          - s3:PutObject
+          - s3:PutObjectAcl
+          - s3:PutObjectTagging
         Resource:
           - !GetAtt LinkTable.Arn
-
+          - arn:aws:s3:::link-shortener-qr-codes/*
   get-url:
     handler: src/handlers/get-url/index.handler
     events:
@@ -51,6 +55,35 @@ functions:
       - Effect: "Allow"
         Action:
           - dynamodb:GetItem
+        Resource:
+          - !GetAtt LinkTable.Arn
+
+  get-qr-code:
+    handler: src/handlers/get-qr-code/index.handler
+    events:
+      - http:
+          path: /{id}/qrcode
+          method: GET
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt LinkTable.Arn
+
+  get-all-urls:
+    handler: src/handlers/get-all-urls/index.handler
+    events:
+      - http:
+          path: api/getAllUrls
+          method: POST
+          private: true
+    environment:
+      OWNER_DOMAIN: ${self:custom.domainName}
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:Scan
         Resource:
           - !GetAtt LinkTable.Arn
 
@@ -92,7 +125,7 @@ resources:
                     - Ref: AWS::Region
                     - amazonaws.com
               OriginPath: /${self:custom.stage}
-              Id: ${self:service}-${self:provider.region}-api-gw
+              Id: ${self:service}-${env:REGION}-api-gw
               CustomOriginConfig:
                 HTTPSPort: 443
                 OriginProtocolPolicy: https-only
@@ -110,7 +143,7 @@ resources:
               - PATCH
               - POST
               - PUT
-            TargetOriginId: ${self:service}-${self:provider.region}-api-gw
+            TargetOriginId: ${self:service}-${env:REGION}-api-gw
             ViewerProtocolPolicy: redirect-to-https
 
     OriginRequestPolicy:
@@ -146,7 +179,7 @@ resources:
                 - x-api-key
             QueryStringsConfig:
               QueryStringBehavior: none
-
+    
     DNSRecord:
       Type: AWS::Route53::RecordSetGroup
       Condition: CreateRoute53Record

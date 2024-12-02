@@ -6,6 +6,7 @@
 # Node artifact files
 node_modules/
 dist/
+.env
 
 # Compiled Java class files
 *.class
@@ -47,6 +48,7 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+*.env
 
 .serverless/
 .build/

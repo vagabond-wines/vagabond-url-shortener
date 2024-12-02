@@ -38,3 +38,17 @@ export async function getShortUrl(id: string): Promise<ShortURL | null> {
   } catch (error) {}
   return null;
 }
+
+export async function getAllUrls(): Promise<[ShortURL] | null> {
+  if (!linkTable || linkTable == "") {
+    throw new Error("'LINK_TABLE' Environment Variable Not Set");
+  }
+  try {
+    const resp = await dynamodb.scan({
+      TableName: linkTable
+    }).promise();
+    console.log("RETURNED ITEMS COUNT", resp.Items ? resp.Items.length : 0)
+    return resp.Items as [ShortURL];
+  } catch (error) {}
+  return null;
+}
