@@ -1,5 +1,4 @@
 service: serverless-url-shortener
-frameworkVersion: "2"
 useDotenv: true
 
 plugins:
@@ -8,22 +7,24 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs14.x
-  profile: ${env:PROFILE}
-  region: ${env:REGION, eu-west-2}
-  stage: ${env:STAGE}
+  runtime: nodejs20.x
+  profile: default
+  region: eu-west-2
+  stage: dev
   environment:
     LINK_TABLE: !Ref LinkTable
   apiGateway:
     apiKeys:
-      - key-${env:STAGE}
+      - key-dev
 
 custom:
-  stage: ${self:provider.stage}
-  r53HostedZone: ${env:R53HOSTEDZONEID}
-  domainName: ${env:DOMAINNAME}
-  acmCertArn: ${env:AMCCERTARN}
-  createDNSRecord: ${env:CREATEDDNSRECORD}
+  stage: dev
+  r53HostedZone: Z0892944LOJIYQKAFUPT
+  domainName: vaga.link
+  acmCertArn: arn:aws:acm:us-east-1:115222913993:certificate/c5ebd923-0e2b-44b7-a3d9-fc020975c96a
+  createDNSRecord: true
+  esbuild:
+    exclude: []
 
 functions:
   shorten-url:

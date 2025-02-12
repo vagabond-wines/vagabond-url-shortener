@@ -18,7 +18,13 @@ export async function handler(
   ev: APIGatewayEvent
 ): Promise<{ statusCode: number; body: string; headers: any }> {
   try {
-    const su: ShortURL = JSON.parse(ev.body as string) as ShortURL;
+    var body = ev?.body as string;
+    console.log("EV BODY", ev);
+    if (!body.startsWith("{")) {
+      let buff = Buffer.from(body, "base64");
+      body = buff.toString('utf8');
+    }
+    const su: ShortURL = JSON.parse(body) as ShortURL;
     if (!validateOwner(ownerDomain)) {
       return _400("Invalid Owner Domain Configured");
     }
