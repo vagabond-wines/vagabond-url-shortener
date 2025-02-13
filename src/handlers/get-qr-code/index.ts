@@ -19,7 +19,7 @@ export async function handler(
     const logo = await loadImage(
       "https://vagabond-app-assets.s3.eu-west-2.amazonaws.com/red-logo.png"
     );
-    ctx.drawImage(logo, 255, 255, 100, 100);
+    ctx.drawImage(logo, 240, 240, 140, 140);
     return _200Image(canvas.toDataURL());
   } catch (error) {
     console.log("ERROR:", error);
