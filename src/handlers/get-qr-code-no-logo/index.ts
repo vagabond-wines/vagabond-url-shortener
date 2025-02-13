@@ -3,7 +3,7 @@ import { APIGatewayEvent } from "aws-lambda";
 const QRCode = require("qrcode");
 
 // Canvas library is added to the function as a Lambda layer. Keep import but don't include libray in package.json
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas } from "canvas";
 
 export async function handler(
   ev: APIGatewayEvent
@@ -11,15 +11,10 @@ export async function handler(
   try {
     const id = ev.pathParameters!.id as string;
     const canvas = createCanvas(600, 600);
-    const ctx = canvas.getContext("2d");
     await QRCode.toCanvas(canvas, `https://vaga.link/${id}`, {
       width: 600,
       margin: 2,
     });
-    const logo = await loadImage(
-      "https://vagabond-app-assets.s3.eu-west-2.amazonaws.com/red-logo.png"
-    );
-    ctx.drawImage(logo, 255, 255, 100, 100);
     return _200Image(canvas.toDataURL());
   } catch (error) {
     console.log("ERROR:", error);

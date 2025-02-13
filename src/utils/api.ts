@@ -7,14 +7,14 @@ export function redirect(longUrl: string) {
   };
 }
 
-export function _200Image(data: any) {
+export function _200Image(data: string) {
   return {
     statusCode: 200,
-    body: '<img src="' + data + '" />',
+    body: data?.replace("data:image/png;base64,", ""),
     headers: {
-      "Content-type": "text/html",
+      "Content-Type": "image/png",
     },
-    isBase64Encoded: true
+    isBase64Encoded: true,
   };
 }
 
@@ -23,7 +23,7 @@ export function _200(data: any) {
     statusCode: 200,
     body: typeof data === "string" ? data : JSON.stringify(data),
     headers: {
-      "Content-type": "application/json",
+      "Content-Type": "application/json",
     },
   };
 }
@@ -35,7 +35,7 @@ export function _404(name: string, ID: string) {
       error: `${name} with ID ${ID} not found`,
     }),
     headers: {
-      "Content-type": "application/json",
+      "Content-Type": "application/json",
     },
   };
 }
@@ -47,7 +47,7 @@ export function _400(err?: any) {
       error: err || "Bad Request",
     }),
     headers: {
-      "Content-type": "application/json",
+      "Content-Type": "application/json",
     },
   };
 }
@@ -61,7 +61,7 @@ export function _500(err?: any) {
         })
       : "Internal Server Error",
     headers: {
-      "Content-type": "application/json",
+      "Content-Type": "application/json",
     },
   };
 }

@@ -72,6 +72,19 @@ functions:
         Resource:
           - !GetAtt LinkTable.Arn
 
+  get-qr-code-no-logo:
+    handler: src/handlers/get-qr-code-no-logo/index.handler
+    events:
+      - http:
+          path: /{id}/qrcode-no-logo
+          method: GET
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - !GetAtt LinkTable.Arn
+
   get-all-urls:
     handler: src/handlers/get-all-urls/index.handler
     events:
